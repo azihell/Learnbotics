@@ -1,0 +1,251 @@
+<?xml version="1.0"?>
+
+<robot name="Learnbot" xmlns:xacro="http://ros.org/wiki/xacro">
+<xacro:property name="Pi" value="3.1415926535897931"/>
+
+<!--Included URDF/XACRO Files-->
+  <xacro:include filename="$(find learnbot_description)/urdf/rodas.xacro"/>
+  <!-- <xacro:include filename="$(find learnbot_description)/urdf/LiDAR.xacro"/> -->
+
+<!--Modelagem base_link (link)-->
+
+  <link name="base_link">
+  </link>
+
+<!--Modelagem do corpo (link e joint)-->
+
+  <link name="Body">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	      <mesh filename="package://learnbot_description/meshes/Body.dae" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	      <mesh filename="package://learnbot_description/meshes/Body.dae"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.32697605"/>
+      <inertia ixx="1.02936619e-3"  ixy="3.48319725e-7"  ixz="8.02098638e-7" iyy="6.63318913e-4" iyz="0" izz="1.20173687e-3" />
+    </inertial>
+  </link>
+
+  <joint name="Body_Joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="Body"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+
+
+<!--Modelagem das rodas via um macro xacro (link, gazebo, joint e transmission)-->
+
+  <xacro:learnbot_wheel wheel_side="Left">
+    <origin xyz="0 0 0" rpy="0 0 3.14159265359"/>
+    <origin xyz="0.05285038 0.05762032 -0.03457723" rpy="0 0 0"/>
+  </xacro:learnbot_wheel>
+
+  <xacro:learnbot_wheel wheel_side="Right">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <origin xyz="-0.05285038 0.05762032 -0.03457723" rpy="0 0 0"/>
+  </xacro:learnbot_wheel>
+
+<!--Modelagem da esfera (link e joint)-->
+
+	<link name="Sphere">
+		<visual>
+			<geometry>
+				<mesh filename="package://learnbot_description/meshes/Sphere.dae" />
+			</geometry>
+		</visual>
+		<collision>
+			<geometry>
+				<mesh filename="package://learnbot_description/meshes/Sphere.dae" />
+			</geometry>
+		</collision>
+		<inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+			<mass value="0.01044340"/>
+			<inertia ixx="4.171e-7"  ixy="0"  ixz="0" iyy="4.17052887e-7" iyz="0" izz="4.16821646e-7" />
+		</inertial>
+	</link>
+
+	<joint name="Sphere_Joint" type="continuous">
+		<parent link="base_link"/>
+		<child link="Sphere"/>
+    <origin xyz="0.00014962 -0.02826274 -0.06268366" rpy="0 0 0"/>
+		<axis xyz="1 0 0" rpy="0 0 0"/>
+	</joint>
+
+<!--Modelagem da base do LiDAR-->
+
+  <link name="LiDARbase">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	      <mesh filename="package://learnbot_description/meshes/LiDARbottom.stl" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	      <mesh filename="package://learnbot_description/meshes/LiDARbottom.stl"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.34089944"/>
+      <inertia ixx="2.46355030e-4"  ixy="0"  ixz="0" iyy="2.46355029e-4" iyz="0" izz="2.46355029e-4"/>
+    </inertial>
+  </link>
+
+  <joint name="LiDARbase_Joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="LiDARbase"/>
+    <origin xyz="0 0 0.07268366" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+<!--Modelagem do topo do LiDAR-->
+
+  <link name="LiDARtop">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	      <mesh filename="package://learnbot_description/meshes/LiDARtop.stl" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	      <mesh filename="package://learnbot_description/meshes/LiDARtop.stl"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0.07268366" rpy="0 0 0"/>
+      <mass value="0.41382886"/>
+      <inertia ixx="3.67711887e-4"  ixy="0"  ixz="0" iyy="3.92394691e-4" iyz="9.28352736e-6" izz="3.71354263e-4"/>
+    </inertial>
+  </link>
+
+  <joint name="LiDARtop_Joint" type="continuous">
+    <parent link="LiDARbase"/>
+    <child link="LiDARtop"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <gazebo reference="LiDARtop">
+    <sensor type="ray" name="LiDAR_Sensor">
+      <pose>0 -0.02500000 0.05867000 0 0 -${Pi/2}</pose>
+      <visualize>true</visualize>
+      <update_rate>30</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>24</samples>
+            <resolution>1</resolution>
+            <min_angle>-${Pi/9}</min_angle>
+            <max_angle>${Pi/9}</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>24</samples>
+            <resolution>1</resolution>
+            <min_angle>-${Pi/9}</min_angle>
+            <max_angle>${Pi/9}</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0.05</min>
+          <max>3</max>
+          <resolution>0.02</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_velodyne_laser.so">
+        <topicName>/laser/scan</topicName>
+        <frameName>LiDARtop</frameName>
+        <min_range>0.05</min_range>
+        <max_range>3</max_range>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+<!--Modelagem da camera-->
+
+  <link name="Camera">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	      <mesh filename="package://learnbot_description/meshes/Camera.stl"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	      <mesh filename="package://learnbot_description/meshes/Camera.stl"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.00580998"/>
+      <inertia ixx="7.52239337e-7"  ixy="0"  ixz="0" iyy="6.95314616e-7" iyz="0" izz="3.94843297e-7"/>
+    </inertial>
+  </link>
+
+  <joint name="Camera_Joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="Camera"/>
+    <origin xyz="0 -0.07000000 0.02937000" rpy="0 0 -1.57079632679"/>
+    <axis xyz="1 0 0"/>
+  </joint>
+
+  <gazebo reference="Camera">
+    <sensor type="camera" name="Cam01">
+      <update_rate>30.0</update_rate>
+      <camera name="head">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>800</width>
+          <height>800</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <!-- Noise is sampled independently per pixel on each frame.
+               That pixel's noise value is added to each of its color
+               channels, which at that point lie in the range [0,1]. -->
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>/learnbot_cam</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_link</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+</robot>

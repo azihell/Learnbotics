@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<robot name="learnbot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+<xacro:macro name="learnbot_wheel" params="wheel_side *mesh_pose *wheel_joint_pose">
+
+<!--Modelagem da roda "link" "joint" "transmission" "gazebo"-->
+
+	<link name="${wheel_side}_Wheel">
+		<visual>
+			<xacro:insert_block name="mesh_pose"/>
+			<geometry>
+				<mesh filename="package://learnbot_description/meshes/RightWheel.dae"/>
+			</geometry>
+		</visual>
+		<collision>
+			<xacro:insert_block name="mesh_pose"/>
+			<geometry>
+				<mesh filename="package://learnbot_description/meshes/RightWheel.dae"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<xacro:insert_block name="mesh_pose"/>
+			<mass value="0.041"/>
+			<inertia ixx="2.13765927e-5"  ixy="0"  ixz="0" iyy="1.09514547e-5" iyz="0" izz="1.09513089e-5"/>
+		</inertial>
+	</link>
+
+	<joint name="${wheel_side}_Joint" type="continuous">
+		<parent link="base_link"/>
+		<child link="${wheel_side}_Wheel"/>
+		<xacro:insert_block name="wheel_joint_pose"/>
+		<axis xyz="1 0 0" rpy="0 0 0"/>
+	</joint>
+
+	<gazebo reference="${wheel_side}_Wheel">
+		<mu1 value="1000.0"/>
+		<mu2 value="1.0"/>
+		<kp value="10000000.0"/>
+		<kd value="1.0"/>
+		<fdir1 value="1 0 0"/>
+	</gazebo>
+
+<!--Transmissao -->
+
+	<!-- <transmission name="trans_roda_${wheel_side}">
+		<type>transmission_interface/SimpleTransmission</type>
+		<joint name="base_to_roda_${wheel_side}">
+			<hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+		</joint>
+		<actuator name="roda_${wheel_side}_motor">
+			<mechanicalReduction>1</mechanicalReduction>
+		</actuator>
+	</transmission> -->
+
+</xacro:macro>
+
+</robot>
